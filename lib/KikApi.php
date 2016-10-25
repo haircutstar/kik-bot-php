@@ -166,4 +166,22 @@ class KikApi
 
         return json_decode($return, true);
     }
+    /**
+     * Validates if the kik request matches to the signature 
+     *
+     * @param $request_get_data request body message
+     */    
+    
+    public function validateMessageSignature($request_get_data){
+       $headers = getallheaders();
+       if(!array_key_exists('X-Kik-Signature', $headers)) {
+         return false;
+       }
+        $signature = strtolower($headers['X-Kik-Signature']);
+       
+        $expected = strtolower(hash_hmac( 'sha1', $request_get_data, $this->botkey ));
+
+        return $signature  == $expected ;
+       
+    }
 }

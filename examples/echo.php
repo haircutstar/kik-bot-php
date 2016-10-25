@@ -5,9 +5,31 @@ include_once dirname(__FILE__).'/../bootstrap.php';
 use lib\KikApi;
 use objects\Message;
 
-$bot = new KikApi("botalias", "bot api key");
+function isNull($data) {
+    if (!isset($data)) {
+        return false;
+    }
+    switch ($data) {
+        case 'unknown': // continue
+        case 'undefined': // continue
+        case 'null': // continue
+        case 'NULL': // continue
+        case NULL:
+        case null:
+            return true;
+    }
+    return false;
+}
+
+
+$bot = new KikApi("Bot name", "bot api key");
+$bot->setConfiguration('http://url:port/kik/echo.php');
 
 $inputJSON = file_get_contents('php://input');
+if(isNull($inputJSON) || !$bot->validateMessageSignature($inputJSON)){
+   return;
+}
+
 $data = json_decode( $inputJSON, true );
 
 foreach ($data['messages'] as $message) {
@@ -22,37 +44,13 @@ foreach ($data['messages'] as $message) {
         // Receive message from user
         default:
 
-            // Switch by text from user
-            switch ($message['body'])
-            {
-                case 'All jobs':
-
-                    // Send message to user
+               // Send message to user
                     $bot->send(new Message([
                         'type' => Message::TYPE_TEXT,
-                        'body' => "All jobs response",
+                        'body' => $message['body'],
                         'to' => $message['from'],
                         'chatId' => $message['chatId'],
                     ]));
-
-                    break;
-
-                case 'Web Development':
-
-                    // Send message to user
-                    $bot->send(new Message([
-                        'type' => Message::TYPE_TEXT,
-                        'body' => "Web development response",
-                        'to' => $message['from'],
-                        'chatId' => $message['chatId'],
-                    ]));
-
-                    break;
-
-                default:
-
-                    sendHelpMessage($bot, $message);
-            }
     }
 }
 
@@ -75,11 +73,7 @@ function sendHelpMessage($bot, $message)
                 'responses' => [
                     [
                         'type' => 'text',
-                        'body' => 'All jobs'
-                    ],
-                    [
-                        'type' => 'text',
-                        'body' => 'Web Development'
+                        'body' => 'Talk back'
                     ]
                 ]
             ]
