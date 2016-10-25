@@ -16,4 +16,4 @@ if(isNull($inputData) || !$bot->validateMessageSignature($inputData)){
    return;
 }
 
-Full example of echo bot is included
+The full example of echo bot in php is included
